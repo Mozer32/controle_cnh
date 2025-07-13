@@ -5,13 +5,20 @@
 alter table usuarios_javascript enable row level security;
 
 -- Permitir apenas usuários autenticados
-create policy if not exists "Usuários autenticados podem ler" on usuarios_javascript
+drop policy if exists "Usuários autenticados podem ler" on usuarios_javascript;
+create policy "Usuários autenticados podem ler" on usuarios_javascript
     for select using (auth.role() = 'authenticated');
-create policy if not exists "Usuários autenticados podem inserir" on usuarios_javascript
+
+drop policy if exists "Usuários autenticados podem inserir" on usuarios_javascript;
+create policy "Usuários autenticados podem inserir" on usuarios_javascript
     for insert with check (auth.role() = 'authenticated');
-create policy if not exists "Usuários autenticados podem atualizar" on usuarios_javascript
+
+drop policy if exists "Usuários autenticados podem atualizar" on usuarios_javascript;
+create policy "Usuários autenticados podem atualizar" on usuarios_javascript
     for update using (auth.role() = 'authenticated');
-create policy if not exists "Usuários autenticados podem deletar" on usuarios_javascript
+
+drop policy if exists "Usuários autenticados podem deletar" on usuarios_javascript;
+create policy "Usuários autenticados podem deletar" on usuarios_javascript
     for delete using (auth.role() = 'authenticated');
 
 -- Tabela de logs de auditoria
