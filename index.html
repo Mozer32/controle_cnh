@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚗 Controle de CNHs - Aplicação Desktop</title>
+    <title>�� Controle de CNHs - Login</title>
     
     <style>
         /* Reset e configurações básicas */
@@ -21,6 +21,123 @@
             line-height: 1.6;
         }
 
+        /* Login Container */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 3rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-header h1 {
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-header p {
+            color: #7f8c8d;
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(135deg, #2980b9, #1f5f8b);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn-login:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        /* Main App (hidden initially) */
+        .main-app {
+            display: none;
+        }
+
         /* Header */
         header {
             background: rgba(255, 255, 255, 0.8);
@@ -28,12 +145,31 @@
             text-align: center;
             box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
             backdrop-filter: blur(5px);
+            position: relative;
         }
 
         header h1 {
             font-size: 1.5rem;
             color: #2c3e50;
             margin: 0;
+        }
+
+        .logout-btn {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
         }
 
         /* Main content */
@@ -61,41 +197,6 @@
             font-size: 1.8rem;
             border-bottom: 3px solid #3498db;
             padding-bottom: 0.5rem;
-        }
-
-        /* Form styles */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #2c3e50;
-        }
-
-        input,
-        select {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-            background: #fff;
-        }
-
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
-            transform: translateY(-2px);
-        }
-
-        input::placeholder {
-            color: #bdc3c7;
         }
 
         /* Buttons */
@@ -268,6 +369,11 @@
                 align-items: flex-start;
                 gap: 1rem;
             }
+
+            .login-card {
+                padding: 2rem;
+                margin: 1rem;
+            }
         }
 
         @media (max-width: 480px) {
@@ -283,6 +389,13 @@
             .btn-secondary {
                 padding: 10px 20px;
                 font-size: 0.9rem;
+            }
+
+            .logout-btn {
+                position: static;
+                transform: none;
+                margin-top: 1rem;
+                width: 100%;
             }
         }
 
@@ -317,91 +430,202 @@
     </style>
 </head>
 <body>
-    <header>
-        <h1>🚗 Controle de CNHs</h1>
-    </header>
-
-    <main>
-        <!-- Seção 1: Cadastro -->
-        <section class="cadastro-section">
-            <h2>📝 Cadastro de Pessoa</h2>
-            <p style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 1.5rem; font-style: italic;">
-                Sistema de gerenciamento de carteiras de habilitação
-            </p>
-            <form id="formulario">
+    <!-- Login Screen -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>🚗 Controle de CNHs</h1>
+                <p>Sistema de gerenciamento de carteiras de habilitação</p>
+            </div>
+            
+            <div id="loginMessage"></div>
+            
+            <form id="loginForm">
                 <div class="form-group">
-                    <label for="nome">Nome:</label>
-                    <input type="text" id="nome" required placeholder="Digite o nome completo" />
+                    <label for="username">Usuário:</label>
+                    <input type="text" id="username" required placeholder="Digite seu usuário" />
                 </div>
-
+                
                 <div class="form-group">
-                    <label for="idade">Idade:</label>
-                    <input type="number" id="idade" required placeholder="Digite a idade" min="16" max="120" />
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password" required placeholder="Digite sua senha" />
                 </div>
-
-                <div class="form-group">
-                    <label for="habilitado">É habilitado?</label>
-                    <select id="habilitado" required>
-                        <option value="">Selecione uma opção</option>
-                        <option value="sim">Sim</option>
-                        <option value="não">Não</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="cidade">Cidade:</label>
-                    <input type="text" id="cidade" required placeholder="Digite a cidade" />
-                </div>
-
-                <div class="form-group">
-                    <label for="numero_cnh">Número da CNH:</label>
-                    <input type="text" id="numero_cnh" placeholder="Digite o número da CNH (opcional)" />
-                </div>
-
-                <div class="form-group">
-                    <label for="validade_cnh">Validade da CNH:</label>
-                    <input type="date" id="validade_cnh" />
-                </div>
-
-                <button type="submit" class="btn-primary">💾 Cadastrar</button>
+                
+                <button type="submit" class="btn-login" id="loginBtn">
+                    🔐 Entrar
+                </button>
             </form>
-            <p id="mensagem" class="mensagem"></p>
-        </section>
+        </div>
+    </div>
 
-        <hr />
+    <!-- Main Application (hidden initially) -->
+    <div id="mainApp" class="main-app">
+        <header>
+            <h1>🚗 Controle de CNHs</h1>
+            <button class="logout-btn" onclick="logout()">🚪 Sair</button>
+        </header>
 
-        <!-- Seção 2: Consulta -->
-        <section class="consulta-section">
-            <h2>🔍 CNHs Próximas do Vencimento (até 60 dias)</h2>
-            <div style="margin-bottom: 1rem;">
-                <button id="consultar" class="btn-secondary">🔍 Consultar Vencimentos</button>
-                <button id="consultarTodos" class="btn-secondary" style="margin-left: 1rem;">📋 Ver Todos os Registros</button>
-            </div>
-            <div style="position: relative;">
-                <ul id="lista-cnhs" class="lista-cnhs"></ul>
-                <div id="scroll-indicator" style="display: none; text-align: center; margin-top: 0.5rem; font-size: 0.8rem; color: #7f8c8d;">
-                    ↕️ Role para ver mais itens
+        <main>
+            <!-- Seção 1: Cadastro -->
+            <section class="cadastro-section">
+                <h2>📝 Cadastro de Pessoa</h2>
+                <p style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 1.5rem; font-style: italic;">
+                    Sistema de gerenciamento de carteiras de habilitação
+                </p>
+                <form id="formulario">
+                    <div class="form-group">
+                        <label for="nome">Nome:</label>
+                        <input type="text" id="nome" required placeholder="Digite o nome completo" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="idade">Idade:</label>
+                        <input type="number" id="idade" required placeholder="Digite a idade" min="16" max="120" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="habilitado">É habilitado?</label>
+                        <select id="habilitado" required>
+                            <option value="">Selecione uma opção</option>
+                            <option value="sim">Sim</option>
+                            <option value="não">Não</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cidade">Cidade:</label>
+                        <input type="text" id="cidade" required placeholder="Digite a cidade" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="numero_cnh">Número da CNH:</label>
+                        <input type="text" id="numero_cnh" placeholder="Digite o número da CNH (opcional)" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="validade_cnh">Validade da CNH:</label>
+                        <input type="date" id="validade_cnh" />
+                    </div>
+
+                    <button type="submit" class="btn-primary">💾 Cadastrar</button>
+                </form>
+                <p id="mensagem" class="mensagem"></p>
+            </section>
+
+            <hr />
+
+            <!-- Seção 2: Consulta -->
+            <section class="consulta-section">
+                <h2>🔍 CNHs Próximas do Vencimento (até 60 dias)</h2>
+                <div style="margin-bottom: 1rem;">
+                    <button id="consultar" class="btn-secondary">🔍 Consultar Vencimentos</button>
+                    <button id="consultarTodos" class="btn-secondary" style="margin-left: 1rem;">📋 Ver Todos os Registros</button>
                 </div>
-            </div>
-        </section>
-    </main>
+                <div style="position: relative;">
+                    <ul id="lista-cnhs" class="lista-cnhs"></ul>
+                    <div id="scroll-indicator" style="display: none; text-align: center; margin-top: 0.5rem; font-size: 0.8rem; color: #7f8c8d;">
+                        ↕️ Role para ver mais itens
+                    </div>
+                </div>
+            </section>
+        </main>
 
-    <footer>
-        <p>&copy; 2024 - Sistema de Controle de CNHs</p>
-    </footer>
+        <footer>
+            <p>&copy; 2024 - Sistema de Controle de CNHs</p>
+        </footer>
+    </div>
 
     <script>
         // Configurações para GitHub Pages (credenciais embutidas)
         const SUPABASE_URL = "https://kuenkqwckxctltlplmbg.supabase.co";
         const SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1ZW5rcXdja3hjdGx0bHBsbWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3MDg5NzAsImV4cCI6MjA2NjI4NDk3MH0.51ztyRF391PxfwzVD0VYP4SiCt5JCpnQftRbHFU8Y5g";
 
+        // Usuários autorizados (em produção, isso deveria estar no banco)
+        const USUARIOS_AUTORIZADOS = {
+            'admin': 'admin123',
+            'usuario1': 'senha123',
+            'usuario2': 'senha456',
+            'teste': 'teste123'
+        };
+
         // Elementos DOM
+        const loginScreen = document.getElementById('loginScreen');
+        const mainApp = document.getElementById('mainApp');
+        const loginForm = document.getElementById('loginForm');
+        const loginMessage = document.getElementById('loginMessage');
+        const loginBtn = document.getElementById('loginBtn');
+
         const form = document.getElementById("formulario");
         const mensagem = document.getElementById("mensagem");
         const consultarBtn = document.getElementById("consultar");
         const consultarTodosBtn = document.getElementById("consultarTodos");
         const listaCNHs = document.getElementById("lista-cnhs");
         const scrollIndicator = document.getElementById("scroll-indicator");
+
+        // Verificar se já está logado
+        function checkAuth() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const currentUser = localStorage.getItem('currentUser');
+            
+            if (isLoggedIn === 'true' && currentUser) {
+                showMainApp();
+            }
+        }
+
+        // Mostrar aplicação principal
+        function showMainApp() {
+            loginScreen.style.display = 'none';
+            mainApp.style.display = 'block';
+            inicializarAplicacao();
+        }
+
+        // Mostrar tela de login
+        function showLoginScreen() {
+            loginScreen.style.display = 'flex';
+            mainApp.style.display = 'none';
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('currentUser');
+        }
+
+        // Função de logout
+        function logout() {
+            showLoginScreen();
+            showMessage('Logout realizado com sucesso!', 'success');
+        }
+
+        // Mostrar mensagem
+        function showMessage(message, type) {
+            loginMessage.innerHTML = `<div class="${type === 'error' ? 'error-message' : 'success-message'}">${message}</div>`;
+        }
+
+        // Login
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = '🔄 Verificando...';
+            
+            // Simular delay de verificação
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Verificar credenciais
+            if (USUARIOS_AUTORIZADOS[username] && USUARIOS_AUTORIZADOS[username] === password) {
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('currentUser', username);
+                showMainApp();
+                showMessage(`Bem-vindo, ${username}!`, 'success');
+            } else {
+                showMessage('Usuário ou senha incorretos!', 'error');
+                loginBtn.disabled = false;
+                loginBtn.textContent = '🔐 Entrar';
+            }
+        });
+
+        // Verificar autenticação ao carregar
+        checkAuth();
 
         // Função para inicializar aplicação desktop
         function inicializarAplicacao() {
@@ -423,7 +647,12 @@
         }
 
         // Eventos
-        window.addEventListener("DOMContentLoaded", inicializarAplicacao);
+        window.addEventListener("DOMContentLoaded", () => {
+            // Apenas inicializar se já estiver logado
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                inicializarAplicacao();
+            }
+        });
 
         form.addEventListener("submit", async (e) => {
             e.preventDefault();
