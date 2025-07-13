@@ -253,4 +253,81 @@ CREATE TRIGGER on_auth_user_created
 
 ---
 
+## 🔍 GUIA VISUAL - Onde encontrar as opções:
+
+### 📍 Passo a passo detalhado:
+
+#### 1. **Acesse o Dashboard:**
+- Vá para [supabase.com](https://supabase.com)
+- Faça login
+- Clique no seu projeto
+
+#### 2. **Encontre Authentication:**
+- No menu lateral esquerdo, procure por **"Authentication"**
+- Clique em **"Authentication"**
+
+#### 3. **Vá para Settings:**
+- Dentro de Authentication, clique em **"Settings"** (ou "Configurações")
+- Deve aparecer uma aba com várias opções
+
+#### 4. **Configure Email Confirmations:**
+- Procure por **"Email confirmations"** ou **"Confirm email"**
+- Deve haver um toggle/switch para ativar/desativar
+- **Ative** a opção (mude para ON)
+
+#### 5. **Outras opções importantes:**
+- **"Enable email change confirmations"** - Ative
+- **"Enable phone confirmations"** - Pode deixar OFF
+- **"Enable phone change confirmations"** - Pode deixar OFF
+
+### 🔍 Se não encontrar:
+
+#### Opção A - Menu diferente:
+- Alguns projetos têm menu ligeiramente diferente
+- Procure por: **"Auth"**, **"Users"**, **"Settings"**, **"Configuration"**
+
+#### Opção B - Versão mais antiga:
+- Se não encontrar, pode estar usando versão mais antiga
+- Procure por: **"Auth Settings"**, **"User Management"**
+
+#### Opção C - Procurar por texto:
+- Use Ctrl+F (Cmd+F no Mac) para procurar por:
+- "email"
+- "confirmation"
+- "confirm"
+- "settings"
+
+### 📱 Interface mobile:
+- No mobile, o menu pode estar em um botão hambúrguer (☰)
+- Clique no ícone de menu para expandir as opções
+
+### 🆘 Se ainda não encontrar:
+
+1. **Verifique se está no projeto correto:**
+   - No topo da página deve aparecer o nome do seu projeto
+   - Se não for o correto, clique no seletor de projetos
+
+2. **Procure por "Auth" ou "Authentication":**
+   - Deve estar no menu lateral esquerdo
+   - Pode estar agrupado com outras opções
+
+3. **Verifique se tem permissões:**
+   - Você precisa ser owner ou admin do projeto
+   - Se não for, peça acesso ao administrador
+
+4. **Tente navegar por:**
+   - Dashboard → Authentication → Settings
+   - Ou: Dashboard → Auth → Configuration
+   - Ou: Dashboard → Users → Settings
+
+### 📞 Ainda com problemas?
+
+Se não conseguir encontrar, posso te ajudar de outras formas:
+
+1. **Screenshot:** Tire um print da tela do seu dashboard
+2. **Descrição:** Me diga o que você vê no menu lateral
+3. **Versão:** Verifique se está usando a versão mais recente
+
+---
+
 **🎉 Parabéns!** Seu sistema agora tem autenticação profissional e segura! 🔐 
