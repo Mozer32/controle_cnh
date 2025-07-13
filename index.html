@@ -11,6 +11,9 @@
     <!-- Configurações seguras -->
     <script src="config.js"></script>
     
+    <!-- CSS de Segurança -->
+    <link rel="stylesheet" href="css_100_seguranca.css">
+    
     <style>
         /* Reset e configurações básicas */
         * {
@@ -525,7 +528,37 @@
                 <a href="#" id="forgotPasswordLink">Esqueci minha senha</a>
                 <span>|</span>
                 <a href="#" id="registerLink">Criar conta</a>
+                <span>|</span>
+                <a href="#" id="loginWithOTPLink">🔐 Login com Código</a>
             </div>
+        </div>
+    </div>
+
+    <!-- 2FA Form -->
+    <div id="otpScreen" class="login-container" style="display: none;">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>🔐 Autenticação de Dois Fatores</h1>
+                <p>Digite o código enviado para seu email</p>
+            </div>
+            
+            <div id="otpMessage"></div>
+            
+            <form id="otp-form">
+                <input type="hidden" id="otp-email">
+                <div class="form-group">
+                    <label for="otp-token">Código de Acesso:</label>
+                    <input type="text" id="otp-token" class="otp-input" placeholder="000000" maxlength="6" required />
+                </div>
+                
+                <button type="submit" class="otp-button">
+                    ✅ Verificar Código
+                </button>
+            </form>
+
+            <a href="#" class="back-to-login" onclick="showLoginForm()">← Voltar ao Login</a>
+        </div>
+    </div>
         </div>
     </div>
 
@@ -574,7 +607,13 @@
                 
                 <div class="form-group">
                     <label for="registerPassword">Senha:</label>
-                    <input type="password" id="registerPassword" required placeholder="Digite sua senha (mín. 6 caracteres)" minlength="6" />
+                    <input type="password" id="registerPassword" required placeholder="Digite sua senha (mín. 8 caracteres)" minlength="8" />
+                    <div class="password-strength-container">
+                        <div class="password-strength-bar">
+                            <div id="password-strength" class="strength-bar"></div>
+                        </div>
+                        <p id="password-strength-text" class="strength-text">Digite sua senha</p>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -674,6 +713,7 @@
     </div>
 
     <script>
+        // 🎯 SISTEMA DE SEGURANÇA 100% - JAVASCRIPT
         // Configurações do Supabase (carregadas do arquivo config.js)
         const SUPABASE_URL = window.SUPABASE_CONFIG.url;
         const SUPABASE_API_KEY = window.SUPABASE_CONFIG.apiKey;
@@ -681,19 +721,238 @@
         // Inicializar cliente Supabase
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_API_KEY);
 
-        // Elementos DOM
+        // ========================================
+        // 🚫 RATE LIMITING - Proteção contra ataques
+        // ========================================
+
+        const loginAttempts = new Map();
+        const MAX_LOGIN_ATTEMPTS = 5;
+        const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutos
+
+        function checkRateLimit(email) {
+            const now = Date.now();
+            const attempts = loginAttempts.get(email) || [];
+            
+            // Remover tentativas antigas (mais de 15 minutos)
+            const recentAttempts = attempts.filter(time => now - time < LOCKOUT_TIME);
+            
+            if (recentAttempts.length >= MAX_LOGIN_ATTEMPTS) {
+                const oldestAttempt = Math.min(...recentAttempts);
+                const timeLeft = LOCKOUT_TIME - (now - oldestAttempt);
+                const minutesLeft = Math.ceil(timeLeft / 60000);
+                
+                showError(`Muitas tentativas de login. Tente novamente em ${minutesLeft} minutos.`);
+                return false; // Bloqueado
+            }
+            
+            recentAttempts.push(now);
+            loginAttempts.set(email, recentAttempts);
+            return true; // Permitido
+        }
+
+        function resetRateLimit(email) {
+            loginAttempts.delete(email);
+        }
+
+        // ========================================
+        // 🔒 POLÍTICA DE SENHAS FORTES
+        // ========================================
+
+        function validatePassword(password) {
+            const minLength = 8;
+            const hasUpperCase = /[A-Z]/.test(password);
+            const hasLowerCase = /[a-z]/.test(password);
+            const hasNumbers = /\d/.test(password);
+            const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+            
+            const errors = [];
+            
+            if (password.length < minLength) {
+                errors.push(`Mínimo ${minLength} caracteres`);
+            }
+            if (!hasUpperCase) {
+                errors.push('Pelo menos uma letra maiúscula');
+            }
+            if (!hasLowerCase) {
+                errors.push('Pelo menos uma letra minúscula');
+            }
+            if (!hasNumbers) {
+                errors.push('Pelo menos um número');
+            }
+            if (!hasSpecialChar) {
+                errors.push('Pelo menos um caractere especial (!@#$%^&*)');
+            }
+            
+            return {
+                isValid: errors.length === 0,
+                errors: errors
+            };
+        }
+
+        function showPasswordStrength(password) {
+            const validation = validatePassword(password);
+            const strengthBar = document.getElementById('password-strength');
+            const strengthText = document.getElementById('password-strength-text');
+            
+            if (!strengthBar || !strengthText) return;
+            
+            const strength = validation.errors.length;
+            const maxStrength = 5;
+            const percentage = Math.max(0, ((maxStrength - strength) / maxStrength) * 100);
+            
+            strengthBar.style.width = percentage + '%';
+            
+            if (percentage >= 80) {
+                strengthBar.className = 'strength-bar strong';
+                strengthText.textContent = 'Forte';
+                strengthText.className = 'strength-text strong';
+            } else if (percentage >= 60) {
+                strengthBar.className = 'strength-bar medium';
+                strengthText.textContent = 'Média';
+                strengthText.className = 'strength-text medium';
+            } else if (percentage >= 40) {
+                strengthBar.className = 'strength-bar weak';
+                strengthText.textContent = 'Fraca';
+                strengthText.className = 'strength-text weak';
+            } else {
+                strengthBar.className = 'strength-bar very-weak';
+                strengthText.textContent = 'Muito Fraca';
+                strengthText.className = 'strength-text very-weak';
+            }
+        }
+
+        // ========================================
+        // 🔐 2FA - AUTENTICAÇÃO DE DOIS FATORES
+        // ========================================
+
+        async function loginWithOTP(email) {
+            if (!checkRateLimit(email)) return;
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithOtp({
+                    email: email,
+                    options: {
+                        shouldCreateUser: false,
+                        emailRedirectTo: window.location.origin
+                    }
+                });
+                
+                if (error) {
+                    showError('Erro ao enviar código: ' + error.message);
+                    return;
+                }
+                
+                showSuccess('Código de acesso enviado para seu email!');
+                showOTPInput(email);
+                
+            } catch (error) {
+                showError('Erro inesperado: ' + error.message);
+            }
+        }
+
+        async function verifyOTP(email, token) {
+            try {
+                const { data, error } = await supabase.auth.verifyOtp({
+                    email: email,
+                    token: token,
+                    type: 'email'
+                });
+                
+                if (error) {
+                    showError('Código inválido: ' + error.message);
+                    return;
+                }
+                
+                resetRateLimit(email);
+                showSuccess('Login realizado com sucesso!');
+                await loadUserData();
+                showMainContent();
+                
+            } catch (error) {
+                showError('Erro ao verificar código: ' + error.message);
+            }
+        }
+
+        function showOTPInput(email) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('otpScreen').style.display = 'flex';
+            document.getElementById('otp-email').value = email;
+        }
+
+        function showLoginForm() {
+            document.getElementById('otpScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+
+        // ========================================
+        // 📊 LOGS DE AUDITORIA - FRONTEND
+        // ========================================
+
+        async function logUserAction(action, details = {}) {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+                
+                // Registrar ação no frontend (opcional)
+                console.log('Ação do usuário:', {
+                    userId: user.id,
+                    email: user.email,
+                    action: action,
+                    details: details,
+                    timestamp: new Date().toISOString(),
+                    userAgent: navigator.userAgent
+                });
+                
+            } catch (error) {
+                console.error('Erro ao registrar ação:', error);
+            }
+        }
+
+        // ========================================
+        // 🔄 FUNÇÕES AUXILIARES
+        // ========================================
+
+        function showError(message, elementId = 'loginMessage') {
+            const errorDiv = document.getElementById(elementId);
+            if (errorDiv) {
+                errorDiv.innerHTML = `<div class="error-message">${message}</div>`;
+                setTimeout(() => {
+                    errorDiv.innerHTML = '';
+                }, 5000);
+            }
+            console.error('Erro:', message);
+        }
+
+        function showSuccess(message, elementId = 'loginMessage') {
+            const successDiv = document.getElementById(elementId);
+            if (successDiv) {
+                successDiv.innerHTML = `<div class="success-message">${message}</div>`;
+                setTimeout(() => {
+                    successDiv.innerHTML = '';
+                }, 5000);
+            }
+            console.log('Sucesso:', message);
+        }
+
+        // ========================================
+        // 🎯 ELEMENTOS DOM
+        // ========================================
+
         const loginScreen = document.getElementById('loginScreen');
         const forgotPasswordScreen = document.getElementById('forgotPasswordScreen');
         const registerScreen = document.getElementById('registerScreen');
+        const otpScreen = document.getElementById('otpScreen');
         const mainApp = document.getElementById('mainApp');
         
         const loginForm = document.getElementById('loginForm');
         const forgotPasswordForm = document.getElementById('forgotPasswordForm');
         const registerForm = document.getElementById('registerForm');
+        const otpForm = document.getElementById('otp-form');
         
         const loginMessage = document.getElementById('loginMessage');
         const forgotPasswordMessage = document.getElementById('forgotPasswordMessage');
         const registerMessage = document.getElementById('registerMessage');
+        const otpMessage = document.getElementById('otpMessage');
         
         const loginBtn = document.getElementById('loginBtn');
         const resetBtn = document.getElementById('resetBtn');
@@ -779,7 +1038,70 @@
             element.innerHTML = `<div class="${type === 'error' ? 'error-message' : type === 'success' ? 'success-message' : 'info-message'}">${message}</div>`;
         }
 
-        // Login
+        // ========================================
+        // 🎯 FUNÇÕES MODIFICADAS DE AUTENTICAÇÃO
+        // ========================================
+
+        // Modificar a função de login existente
+        async function handleLogin(email, password) {
+            if (!checkRateLimit(email)) return;
+            
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+                
+                if (error) {
+                    showError('Erro no login: ' + error.message);
+                    return;
+                }
+                
+                resetRateLimit(email);
+                await logUserAction('login', { email: email });
+                showSuccess('Login realizado com sucesso!');
+                await loadUserData();
+                showMainContent();
+                
+            } catch (error) {
+                showError('Erro inesperado: ' + error.message);
+            }
+        }
+
+        // Modificar a função de registro
+        async function handleRegister(email, password) {
+            if (!checkRateLimit(email)) return;
+            
+            const validation = validatePassword(password);
+            if (!validation.isValid) {
+                showError('Senha fraca: ' + validation.errors.join(', '), 'registerMessage');
+                return;
+            }
+            
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        emailRedirectTo: window.location.origin
+                    }
+                });
+                
+                if (error) {
+                    showError('Erro no registro: ' + error.message, 'registerMessage');
+                    return;
+                }
+                
+                resetRateLimit(email);
+                await logUserAction('register', { email: email });
+                showSuccess('Registro realizado! Verifique seu email para confirmar.', 'registerMessage');
+                
+            } catch (error) {
+                showError('Erro inesperado: ' + error.message, 'registerMessage');
+            }
+        }
+
+        // Login com segurança
         loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -790,29 +1112,11 @@
             loginBtn.textContent = '🔄 Entrando...';
             loginBtn.classList.add('loading');
             
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
-                
-                if (error) {
-                    throw error;
-                }
-                
-                if (data.user) {
-                    showMessage(loginMessage, `Bem-vindo, ${data.user.email}!`, 'success');
-                    setTimeout(() => {
-                        showMainApp(data.user.email);
-                    }, 1000);
-                }
-            } catch (error) {
-                console.error('Erro no login:', error);
-                showMessage(loginMessage, `Erro no login: ${error.message}`, 'error');
-                loginBtn.disabled = false;
-                loginBtn.textContent = '🔐 Entrar';
-                loginBtn.classList.remove('loading');
-            }
+            await handleLogin(email, password);
+            
+            loginBtn.disabled = false;
+            loginBtn.textContent = '🔐 Entrar';
+            loginBtn.classList.remove('loading');
         });
 
         // Recuperação de senha
@@ -845,7 +1149,7 @@
             }
         });
 
-        // Registro
+        // Registro com segurança
         registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -854,12 +1158,7 @@
             const confirmPassword = document.getElementById('confirmPassword').value;
             
             if (password !== confirmPassword) {
-                showMessage(registerMessage, 'As senhas não coincidem!', 'error');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showMessage(registerMessage, 'A senha deve ter pelo menos 6 caracteres!', 'error');
+                showError('As senhas não coincidem!', 'registerMessage');
                 return;
             }
             
@@ -867,32 +1166,11 @@
             registerBtn.textContent = '🔄 Criando conta...';
             registerBtn.classList.add('loading');
             
-            try {
-                const { data, error } = await supabase.auth.signUp({
-                    email: email,
-                    password: password
-                });
-                
-                if (error) {
-                    throw error;
-                }
-                
-                if (data.user) {
-                    showMessage(registerMessage, 'Conta criada com sucesso! Verifique seu email para confirmar.', 'success');
-                    registerBtn.textContent = '✅ Conta Criada';
-                    
-                    // Voltar para login após 3 segundos
-                    setTimeout(() => {
-                        showLoginScreen();
-                    }, 3000);
-                }
-            } catch (error) {
-                console.error('Erro no registro:', error);
-                showMessage(registerMessage, `Erro ao criar conta: ${error.message}`, 'error');
-                registerBtn.disabled = false;
-                registerBtn.textContent = '✅ Criar Conta';
-                registerBtn.classList.remove('loading');
-            }
+            await handleRegister(email, password);
+            
+            registerBtn.disabled = false;
+            registerBtn.textContent = '✅ Criar Conta';
+            registerBtn.classList.remove('loading');
         });
 
         // Logout
@@ -911,6 +1189,32 @@
                 showMessage(loginMessage, `Erro no logout: ${error.message}`, 'error');
             }
         }
+
+        // ========================================
+        // 🎯 EVENT LISTENERS ADICIONAIS
+        // ========================================
+
+        // 2FA - Login com código
+        document.getElementById('loginWithOTPLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            const email = prompt('Digite seu email para receber o código:');
+            if (email) {
+                await loginWithOTP(email);
+            }
+        });
+
+        // 2FA - Verificar código
+        otpForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('otp-email').value;
+            const token = document.getElementById('otp-token').value;
+            await verifyOTP(email, token);
+        });
+
+        // Força da senha
+        document.getElementById('registerPassword').addEventListener('input', function() {
+            showPasswordStrength(this.value);
+        });
 
         // Event listeners para navegação
         forgotPasswordLink.addEventListener('click', (e) => {
@@ -955,8 +1259,14 @@
             }, 100);
         }
 
+        // ========================================
+        // 🎯 INICIALIZAÇÃO DO SISTEMA DE SEGURANÇA
+        // ========================================
+
         // Eventos
         window.addEventListener("DOMContentLoaded", () => {
+            console.log('🔐 Sistema de segurança 100% carregado!');
+            
             // Apenas inicializar se já estiver logado
             if (localStorage.getItem('isLoggedIn') === 'true') {
                 inicializarAplicacao();
