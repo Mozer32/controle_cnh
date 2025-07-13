@@ -1,7 +1,6 @@
-// Configurações globais
-const BACKEND_URL = "https://seu-backend.onrender.com"; // Substitua pela sua URL do Render
-let SUPABASE_URL = "";
-let SUPABASE_API_KEY = "";
+// Configurações para aplicação desktop
+const SUPABASE_URL = "https://kuenkqwckxctltlplmbg.supabase.co";
+const SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1ZW5rcXdja3hjdGx0bHBsbWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3MDg5NzAsImV4cCI6MjA2NjI4NDk3MH0.51ztyRF391PxfwzVD0VYP4SiCt5JCpnQftRbHFU8Y5g";
 
 // Elementos DOM
 const form = document.getElementById("formulario");
@@ -9,39 +8,19 @@ const mensagem = document.getElementById("mensagem");
 const consultarBtn = document.getElementById("consultar");
 const listaCNHs = document.getElementById("lista-cnhs");
 
-// Obter credenciais do backend
-async function obterCredenciais() {
-  try {
-    console.log("Obtendo credenciais do backend...");
-    const response = await fetch(`${BACKEND_URL}/config`);
-
-    if (!response.ok) {
-      throw new Error(`Erro ${response.status}: ${await response.text()}`);
-    }
-
-    const config = await response.json();
-    SUPABASE_URL = config.supabaseUrl;
-    SUPABASE_API_KEY = config.supabaseKey;
-    console.log("Credenciais recebidas com sucesso");
-  } catch (error) {
-    console.error("Falha ao obter credenciais:", error);
-    mensagem.textContent =
-      "Erro ao conectar com o servidor. Recarregue a página.";
-    mensagem.className = "erro";
-  }
+// Função para inicializar aplicação desktop
+function inicializarAplicacao() {
+  console.log("🚀 Iniciando aplicação desktop de Controle de CNHs");
+  console.log("📊 Conectando ao Supabase:", SUPABASE_URL);
+  mensagem.textContent = "Aplicação pronta!";
+  mensagem.className = "sucesso";
 }
 
 // Eventos
-window.addEventListener("DOMContentLoaded", obterCredenciais);
+window.addEventListener("DOMContentLoaded", inicializarAplicacao);
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
-
-  if (!SUPABASE_URL || !SUPABASE_API_KEY) {
-    mensagem.textContent = "Sistema ainda não está pronto. Aguarde...";
-    mensagem.className = "erro";
-    return;
-  }
 
   const dados = {
     nome: document.getElementById("nome").value,
@@ -68,20 +47,20 @@ form.addEventListener("submit", async (e) => {
     );
 
     if (response.ok) {
-      mensagem.textContent = "Cadastro realizado com sucesso!";
+      mensagem.textContent = "✅ Cadastro realizado com sucesso!";
       mensagem.className = "sucesso";
       form.reset();
     } else {
       throw new Error(await response.text());
     }
   } catch (error) {
-    mensagem.textContent = `Erro no cadastro: ${error.message}`;
+    mensagem.textContent = `❌ Erro no cadastro: ${error.message}`;
     mensagem.className = "erro";
   }
 });
 
 consultarBtn.addEventListener("click", async () => {
-  listaCNHs.innerHTML = "<li>Carregando...</li>";
+  listaCNHs.innerHTML = "<li>🔄 Carregando...</li>";
 
   try {
     const hoje = new Date().toISOString().split("T")[0];
@@ -102,13 +81,13 @@ consultarBtn.addEventListener("click", async () => {
     const dados = await response.json();
     renderizarCNHs(dados);
   } catch (error) {
-    listaCNHs.innerHTML = `<li>Erro na consulta: ${error.message}</li>`;
+    listaCNHs.innerHTML = `<li>❌ Erro na consulta: ${error.message}</li>`;
   }
 });
 
 function renderizarCNHs(dados) {
   if (dados.length === 0) {
-    listaCNHs.innerHTML = "<li>Nenhuma CNH próxima do vencimento</li>";
+    listaCNHs.innerHTML = "<li>✅ Nenhuma CNH próxima do vencimento</li>";
     return;
   }
 
