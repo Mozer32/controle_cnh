@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Sistema profissional de controle de CNHs com autenticação segura">
+    <meta name="author" content="Controle CNH System">
+    <title>🚗 Controle de CNHs - Sistema Profissional</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>">
+    
+    <!-- Supabase JS Client -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Configurações -->
+    <script src="config/config.js"></script>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="stylesheet" href="assets/css/security.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p>Carregando sistema...</p>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="loginScreen" class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>🚗 Controle de CNHs</h1>
+                <p>Sistema profissional de gerenciamento</p>
+            </div>
+            
+            <div id="loginMessage"></div>
+            
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required placeholder="seu@email.com" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <input type="password" id="password" required placeholder="Sua senha" />
+                </div>
+                
+                <button type="submit" class="btn-primary" id="loginBtn">
+                    🔐 Entrar
+                </button>
+            </form>
+
+            <div class="auth-links">
+                <a href="#" id="forgotPasswordLink">Esqueci minha senha</a>
+                <span>|</span>
+                <a href="#" id="registerLink">Criar conta</a>
+                <span>|</span>
+                <a href="#" id="loginWithOTPLink">🔐 Login com Código</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2FA Screen -->
+    <div id="otpScreen" class="auth-container" style="display: none;">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>🔐 Autenticação de Dois Fatores</h1>
+                <p>Digite o código enviado para seu email</p>
+            </div>
+            
+            <div id="otpMessage"></div>
+            
+            <form id="otpForm" class="auth-form">
+                <input type="hidden" id="otp-email">
+                <div class="form-group">
+                    <label for="otp-token">Código de Acesso</label>
+                    <input type="text" id="otp-token" class="otp-input" placeholder="000000" maxlength="6" required />
+                </div>
+                
+                <button type="submit" class="btn-primary">
+                    ✅ Verificar Código
+                </button>
+            </form>
+
+            <a href="#" class="back-link" onclick="showLoginForm()">← Voltar ao Login</a>
+        </div>
+    </div>
+
+    <!-- Forgot Password Screen -->
+    <div id="forgotPasswordScreen" class="auth-container" style="display: none;">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>🔑 Recuperar Senha</h1>
+                <p>Digite seu email para receber o link de recuperação</p>
+            </div>
+            
+            <div id="forgotPasswordMessage"></div>
+            
+            <form id="forgotPasswordForm" class="auth-form">
+                <div class="form-group">
+                    <label for="resetEmail">Email</label>
+                    <input type="email" id="resetEmail" required placeholder="seu@email.com" />
+                </div>
+                
+                <button type="submit" class="btn-primary" id="resetBtn">
+                    📧 Enviar Email
+                </button>
+            </form>
+
+            <button class="btn-secondary" id="backToLoginBtn">
+                ← Voltar ao Login
+            </button>
+        </div>
+    </div>
+
+    <!-- Register Screen -->
+    <div id="registerScreen" class="auth-container" style="display: none;">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1>📝 Criar Conta</h1>
+                <p>Crie sua conta para acessar o sistema</p>
+            </div>
+            
+            <div id="registerMessage"></div>
+            
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label for="registerEmail">Email</label>
+                    <input type="email" id="registerEmail" required placeholder="seu@email.com" />
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerPassword">Senha</label>
+                    <input type="password" id="registerPassword" required placeholder="Mín. 8 caracteres" minlength="8" />
+                    <div class="password-strength-container">
+                        <div class="password-strength-bar">
+                            <div id="password-strength" class="strength-bar"></div>
+                        </div>
+                        <p id="password-strength-text" class="strength-text">Digite sua senha</p>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar Senha</label>
+                    <input type="password" id="confirmPassword" required placeholder="Confirme sua senha" minlength="8" />
+                </div>
+                
+                <button type="submit" class="btn-primary" id="registerBtn">
+                    ✅ Criar Conta
+                </button>
+            </form>
+
+            <button class="btn-secondary" id="backToLoginFromRegisterBtn">
+                ← Voltar ao Login
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="mainApp" class="main-app" style="display: none;">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-content">
+                <h1>🚗 Controle de CNHs</h1>
+                <div class="user-info">
+                    <span class="user-email" id="userEmail"></span>
+                    <button class="btn-logout" onclick="logout()">🚪 Sair</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            <!-- Cadastro Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>📝 Cadastro de Pessoa</h2>
+                    <p>Sistema profissional de gerenciamento de carteiras de habilitação</p>
+                </div>
+                
+                <form id="formulario" class="form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nome">Nome Completo</label>
+                            <input type="text" id="nome" required placeholder="Digite o nome completo" />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="idade">Idade</label>
+                            <input type="number" id="idade" required placeholder="Idade" min="16" max="120" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="habilitado">É habilitado?</label>
+                            <select id="habilitado" required>
+                                <option value="">Selecione uma opção</option>
+                                <option value="sim">Sim</option>
+                                <option value="não">Não</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="cidade">Cidade</label>
+                            <input type="text" id="cidade" required placeholder="Digite a cidade" />
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="numero_cnh">Número da CNH</label>
+                            <input type="text" id="numero_cnh" placeholder="Digite o número da CNH (opcional)" />
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="validade_cnh">Validade da CNH</label>
+                            <input type="date" id="validade_cnh" />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary">💾 Cadastrar</button>
+                </form>
+                
+                <div id="mensagem" class="message"></div>
+            </section>
+
+            <hr class="section-divider" />
+
+            <!-- Consulta Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>🔍 CNHs Próximas do Vencimento</h2>
+                    <p>Consulta de carteiras que vencem nos próximos 60 dias</p>
+                </div>
+                
+                <div class="actions">
+                    <button id="consultar" class="btn-secondary">🔍 Consultar Vencimentos</button>
+                    <button id="consultarTodos" class="btn-secondary">📋 Ver Todos os Registros</button>
+                </div>
+                
+                <div class="results-container">
+                    <ul id="lista-cnhs" class="results-list"></ul>
+                    <div id="scroll-indicator" class="scroll-indicator" style="display: none;">
+                        ↕️ Role para ver mais itens
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>&copy; 2024 - Sistema de Controle de CNHs | Versão 2.0</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/auth.js"></script>
+    <script src="assets/js/security.js"></script>
+    <script src="assets/js/database.js"></script>
+    <script src="assets/js/main.js"></script>
+</body>
+</html> 
