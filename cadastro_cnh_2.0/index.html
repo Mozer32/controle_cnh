@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auto Escola - Cadastro de Clientes 2.0</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Cadastro de Clientes - Auto Escola 2.0</h1>
+    <form id="formulario">
+      <div class="form-group">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" required />
+      </div>
+      <div class="form-group">
+        <label for="idade">Idade:</label>
+        <input type="number" id="idade" required min="18" />
+      </div>
+      <div class="form-group">
+        <label for="habilitado">É habilitado?</label>
+        <select id="habilitado" required>
+          <option value="">Selecione</option>
+          <option value="sim">Sim</option>
+          <option value="nao">Não</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="cidade">Cidade:</label>
+        <input type="text" id="cidade" required />
+      </div>
+      <div class="form-group">
+        <label for="numero_cnh">Número da CNH:</label>
+        <input type="text" id="numero_cnh" />
+      </div>
+      <div class="form-group">
+        <label for="validade_cnh">Validade da CNH:</label>
+        <input type="date" id="validade_cnh" />
+      </div>
+      <button type="submit">Cadastrar</button>
+    </form>
+    <p id="mensagem"></p>
+    <hr />
+    <h2>Clientes Cadastrados</h2>
+    <ul id="lista-clientes"></ul>
+    <hr />
+    <section>
+      <h2>CNHs Próximas do Vencimento (até 60 dias)</h2>
+      <button id="consultar">Consultar</button>
+      <ul id="lista-cnhs"></ul>
+    </section>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html> 

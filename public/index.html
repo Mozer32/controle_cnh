@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Controle de CNH</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <h1>Controle de CNHs</h1>
+
+    <!-- Seção 1: Cadastro -->
+    <section>
+      <h2>Cadastro de Pessoa</h2>
+      <form id="formulario">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" required />
+
+        <label for="idade">Idade:</label>
+        <input type="number" id="idade" required />
+
+        <label for="habilitado">É habilitado?</label>
+        <select id="habilitado" required>
+          <option value="">Selecione</option>
+          <option value="sim">Sim</option>
+          <option value="não">Não</option>
+        </select>
+
+        <label for="cidade">Cidade:</label>
+        <input type="text" id="cidade" required />
+
+        <label for="numero_cnh">Número da CNH:</label>
+        <input type="text" id="numero_cnh" />
+
+        <label for="validade_cnh">Validade da CNH:</label>
+        <input type="date" id="validade_cnh" />
+
+        <button type="submit">Cadastrar</button>
+      </form>
+      <p id="mensagem"></p>
+    </section>
+
+    <hr />
+
+    <!-- Seção 2: Consulta -->
+    <section>
+      <h2>CNHs Próximas do Vencimento (até 60 dias)</h2>
+      <button id="consultar">Consultar</button>
+      <ul id="lista-cnhs"></ul>
+    </section>
+
+    <script src="script.js"></script>
+  </body>
+</html>
