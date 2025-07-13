@@ -8,6 +8,9 @@
     <!-- Supabase JS Client -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     
+    <!-- Configurações seguras -->
+    <script src="config.js"></script>
+    
     <style>
         /* Reset e configurações básicas */
         * {
@@ -671,9 +674,9 @@
     </div>
 
     <script>
-        // Configurações do Supabase
-        const SUPABASE_URL = "https://kuenkqwckxctltlplmbg.supabase.co";
-        const SUPABASE_API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1ZW5rcXdja3hjdGx0bHBsbWJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA3MDg5NzAsImV4cCI6MjA2NjI4NDk3MH0.51ztyRF391PxfwzVD0VYP4SiCt5JCpnQftRbHFU8Y5g";
+        // Configurações do Supabase (carregadas do arquivo config.js)
+        const SUPABASE_URL = window.SUPABASE_CONFIG.url;
+        const SUPABASE_API_KEY = window.SUPABASE_CONFIG.apiKey;
 
         // Inicializar cliente Supabase
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_API_KEY);
